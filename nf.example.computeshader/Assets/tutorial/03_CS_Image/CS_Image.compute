@@ -1,0 +1,14 @@
+#pragma kernel CS_Image
+
+RWTexture2D<half4> _RenderTex;
+
+[numthreads(8, 8, 1)]
+void CS_Image(uint2 id : SV_DispatchThreadID)
+{
+    float width;
+    float height;
+    _RenderTex.GetDimensions(width, height);
+    
+    half2 uv = half2(id.x / width, id.y / height);
+    _RenderTex[id] = half4(uv.x, uv.y, 0, 1);
+}

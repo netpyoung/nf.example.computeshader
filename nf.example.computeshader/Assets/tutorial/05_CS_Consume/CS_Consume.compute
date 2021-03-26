@@ -1,0 +1,28 @@
+#pragma kernel CS_Consume
+#pragma kernel CS_Append
+
+ConsumeStructuredBuffer<float3> _ConsumeBuffer;
+AppendStructuredBuffer<float3> _AppendBuffer;
+
+
+float _BetweenSize;
+float _Width;
+
+[numthreads(8, 8, 1)]
+void CS_Consume(uint3 id : SV_DispatchThreadID)
+{
+    _ConsumeBuffer.Consume();
+}
+
+[numthreads(8, 8, 1)]
+void CS_Append(uint3 id : SV_DispatchThreadID)
+{
+    float3 pos = id / (_Width - 1);
+    pos = (pos - 0.5) * 2.0 * _BetweenSize;
+    pos.z = 0.0;
+
+    if (id.x % 2 == 0 && id.y % 2 == 0)
+    {
+        _AppendBuffer.Append(pos);
+    }
+}

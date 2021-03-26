@@ -1,0 +1,9 @@
+#pragma kernel CS_HelloWorld
+
+RWStructuredBuffer<int> _Buffer;
+
+[numthreads(4, 1, 1)]
+void CS_HelloWorld(uint3 threadID : SV_GroupThreadID)
+{
+    _Buffer[threadID.x] = threadID.x;
+}
