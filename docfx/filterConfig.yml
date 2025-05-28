@@ -1,0 +1,12 @@
+### YamlMime:ManagedReference
+apiRules:
+- exclude:
+    uidRegex: ^System
+- exclude:
+    uidRegex: ^UnityEngine
+- exclude:
+    uidRegex: ^Global
+- exclude:
+    uidRegex: Tests
+- exclude:
+    uidRegex: TemplateGenerator

@@ -1,0 +1,51 @@
+name: Build and deploy GH Pages
+
+## ref: https://dotnet.github.io/docfx/index.html
+
+on: 
+ push:
+  branches:
+   - main
+  paths:
+    - '.github/workflows/**'
+    - 'docfx/**'
+    - 'README.md'
+    - 'nf.example.computeshader/**'
+
+jobs:
+  publish-docs:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Dotnet Setup
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+
+      - name: Install DocFX
+        run: |
+          dotnet tool update -g docfx
+      - name: Build DocFX
+        run: |
+          docfx docfx/docfx.json
+          touch ./docfx/_site/.nojekyll
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docfx/_site

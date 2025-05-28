@@ -1,0 +1,34 @@
+{
+  "metadata": [
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "res/**"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "nf.example.computeshader",
+      "_appTitle": "nf.example.computeshader",
+      "_enableSearch": true,
+      "pdf": false
+    }
+  }
+}
