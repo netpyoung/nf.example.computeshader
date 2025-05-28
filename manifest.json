@@ -1,0 +1,175 @@
+{
+  "source_base_path": "/home/runner/work/nf.example.computeshader/nf.example.computeshader/docfx",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "Resource",
+      "output": {
+        "resource": {
+          "relative_path": "index.json"
+        }
+      }
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/basic/compute_shader.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/basic/compute_shader.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/basic/core_concept.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/basic/core_concept.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/basic/wip_TODO.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/basic/wip_TODO.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/ref.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/ref.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/steps/01_CS_HelloWorld.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/steps/01_CS_HelloWorld.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/steps/02_CS_Dimension2.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/steps/02_CS_Dimension2.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/steps/03_CS_Image.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/steps/03_CS_Image.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/steps/04_CS_Append.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/steps/04_CS_Append.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/steps/05_CS_Consume.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/steps/05_CS_Consume.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/steps/06_CS_Counter.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/steps/06_CS_Counter.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "docs/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "docs/toc.html"
+        },
+        ".json": {
+          "relative_path": "docs/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Redirection",
+      "source_relative_path": "index.md",
+      "output": {
+        ".html": {
+          "relative_path": "index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "res/dispatch_ids.jpg",
+      "output": {
+        "resource": {
+          "relative_path": "res/dispatch_ids.jpg"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "toc.html"
+        },
+        ".json": {
+          "relative_path": "toc.json"
+        }
+      },
+      "version": ""
+    }
+  ],
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}

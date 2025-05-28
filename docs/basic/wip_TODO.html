@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title> | nf.example.computeshader </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content=" | nf.example.computeshader ">
+      
+      
+      <link rel="icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="../../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/netpyoung/nf.example.computeshader/blob/main/docfx/docs/basic/wip_TODO.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../logo.svg" alt="nf.example.computeshader">
+            nf.example.computeshader
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+
+<hr>
+<h2 id="helloworld">HelloWorld</h2>
+<pre><code class="lang-hlsl">#pragma kernel CSMain
+RWTexture2D&lt;float4&gt; Result;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    Result[id.xy] = float4(1, 0, 0, 1);
+}
+</code></pre>
+<pre><code class="lang-cs">RenderTexture renderTexture;
+Material material;
+ComputeShader shader;
+
+// Shader Model 5.0 level pixel or compute shaders can write into arbitrary locations of some textures, called &quot;unordered access views&quot; in UsingDX11GL3Features
+renderTexture.enableRandomWrite = true;
+// Universal's Unlit using `_BaseMap` as Main Texture.
+material.SetTexture(&quot;_MainTex&quot;, renderTexture);
+
+// .compute: #pragma kernel CSMain
+int kernelHandle = shader.FindKernel(&quot;CSMain&quot;);
+// .compute: RWTexture2D&lt;float4&gt; Result;
+shader.SetTexture(kernelHandle, &quot;Result&quot;, renderTexture); 
+</code></pre>
+<pre><code class="lang-cs">// .cs
+shader.Dispatch(KernelHandle, 3, 2, 1);
+
+// .compute
+[numthreads(4, 4, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+
+// [total]
+// (3 * 2 * 1) * (4 * 4 * 1) = 96 threads.
+</code></pre>
+<pre><code class="lang-cs">new RenderTexture(width: 256, height: 256, depth: 0);
+// 256 x 256
+// (0, 256)    (256, 256)
+//      +-------+
+//      |   .   |
+//      |   .   |
+//      +-------+
+// (0,   0)    (256,   0)
+
+// GroupID
+// Dispatch(int kernelIndex, int threadGroupsX, int threadGroupsY, int threadGroupsZ);
+shader.Dispatch(kernelHandle, 256 /  8, 256 /  8, 1);
+shader.Dispatch(kernelHandle, 256 / 16, 256 / 16, 1);
+// 32 * 32 * 1 | 256 / 8  = 32
+// 16 * 16 * 1 | 256 / 16 = 16
+
+// ThreadID
+[numthreads(8, 8, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+// 8 * 8 * 1
+
+// DispatchedThreadID
+// 32 * 8 = 256  | ThreadGroup * NumThreads
+// 16 * 8 = 128  | ThreadGroup * NumThreads
+
+
+// (0, 256)    (256, 256)
+//      +-------+
+//      |   .   |
+//      |   .   |
+//      +-------+
+// (0,   0)    (256,   0)
+// 
+// (0, 128)    (128, 128)
+//      +---+
+//      |   |
+//      +---+
+// (0,   0)    (128,   0)
+// 
+// (32 * 32 * 1) * (8 * 8 * 1) = 65536
+// (16 * 16 * 1) * (8 * 8 * 1) = 16384
+</code></pre>
+<h2 id="buffer">Buffer</h2>
+<ul>
+<li>구조체 넘길때 사용</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>StructuredBuffer&lt;T&gt;</td>
+<td>읽기 가능</td>
+<td></td>
+</tr>
+<tr>
+<td>RWStructuredBuffer&lt;T&gt;</td>
+<td>읽기/쓰기 가능</td>
+<td></td>
+</tr>
+<tr>
+<td>AppendStructuredBuffer&lt;T&gt;</td>
+<td>push</td>
+<td>ComputeBufferType.Append</td>
+</tr>
+<tr>
+<td>ComsumeStructuredBuffer&lt;T&gt;</td>
+<td>pop</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th><a href="https://docs.unity3d.com/ScriptReference/GraphicsBuffer.Target.html">GraphicsBuffer.Target</a></th>
+<th><a href="https://docs.unity3d.com/6000.1/Documentation/ScriptReference/ComputeBufferType.html">ComputeBufferType</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Raw</td>
+<td>can be used as a raw byte-address buffer.</td>
+<td>O</td>
+<td>O</td>
+</tr>
+<tr>
+<td>Append</td>
+<td>can be used as an append-consume buffer.</td>
+<td>O</td>
+<td>O</td>
+</tr>
+<tr>
+<td>Counter</td>
+<td>with an internal counter.</td>
+<td>O</td>
+<td>O</td>
+</tr>
+<tr>
+<td>Constant</td>
+<td>can be used as a constant buffer (uniform buffer).</td>
+<td>O</td>
+<td>O</td>
+</tr>
+<tr>
+<td>Structured</td>
+<td>can be used as a structured buffer.</td>
+<td>O</td>
+<td>O</td>
+</tr>
+<tr>
+<td>IndirectArguments</td>
+<td>can be used as an indirect argument buffer for indirect draws and dispatches.</td>
+<td>O</td>
+<td>O</td>
+</tr>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>CopySource</td>
+<td>can be used as a source for CopyBuffer.</td>
+<td>O</td>
+<td>X</td>
+</tr>
+<tr>
+<td>CopyDestination</td>
+<td>can be used as a destination for CopyBuffer.</td>
+<td>O</td>
+<td>X</td>
+</tr>
+<tr>
+<td>Index</td>
+<td>can be used as an index buffer.</td>
+<td>O</td>
+<td>X</td>
+</tr>
+<tr>
+<td>Vertex</td>
+<td>can be used as a vertex buffer.</td>
+<td>O</td>
+<td>X</td>
+</tr>
+</tbody>
+</table>
+<h2 id="srp">SRP</h2>
+<pre><code class="lang-cs">cmd.Blit(_CameraSource, _Source);
+
+// BaD
+// _feature.shader.Dispatch(_handleKernel, _groupSize.x, _groupSize.y, 1);
+
+// Good
+cmd.DispatchCompute(_feature.shader, _handleKernel, _groupSize.x, _groupSize.y, 1);
+
+cmd.Blit(_Output, _CameraSource);
+</code></pre>
+<pre><code class="lang-cs">// Bad - gamma
+// textureToMake = new RenderTexture(
+//     _texSize.x / divide,
+//     _texSize.y / divide,
+//     0)
+// {
+//     enableRandomWrite = true
+// };
+// textureToMake.Create();
+
+// Good - linear
+textureToMake = new RenderTexture(
+    _texSize.x / divide,
+    _texSize.y / divide,
+    0,
+    format: RenderTextureFormat.ARGB32,
+    readWrite: RenderTextureReadWrite.Linear)
+{
+    enableRandomWrite = true
+};
+textureToMake.Create();
+</code></pre>
+<h2 id="shared">Shared</h2>
+<pre><code class="lang-hlsl">// shared
+#pragma kernel CS_1
+#pragma kernel CS_2
+
+shared Texture2D&lt;float4&gt; _Source;
+shared RWTexture2D&lt;float4&gt; _Output;
+</code></pre>
+<pre><code class="lang-hlsl">StructuredBuffer&lt;Particle&gt; _ParticleBuffer;
+
+struct VStoFS
+{
+    float4 positionNDC  : SV_POSITION;
+    float psize         : PSIZE;
+}
+
+// vertexID
+//   point : 0
+//   triangle : [0, 1, 2]
+VStoFS vert(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID)
+{
+  Particle p = _ParticleBuffer[instanceID];
+}
+</code></pre>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/netpyoung/nf.example.computeshader/blob/main/docfx/docs/basic/wip_TODO.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          <span>Made with <a href="https://dotnet.github.io/docfx">docfx</a></span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

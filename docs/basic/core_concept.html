@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>기본 개념 | nf.example.computeshader </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="기본 개념 | nf.example.computeshader ">
+      
+      
+      <link rel="icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="../../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/netpyoung/nf.example.computeshader/blob/main/docfx/docs/basic/core_concept.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../logo.svg" alt="nf.example.computeshader">
+            nf.example.computeshader
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="기본-개념">기본 개념</h1>
+
+<h2 id="kernel--group--thread">Kernel / Group / Thread</h2>
+<pre><code class="lang-txt">           Kernel             &lt;--- 작업 단위
+             |
+    -------------------
+    |        |        |
+  Group 0  Group 1  Group 2   &lt;--- 그룹   (SV_GroupID)
+    |        |        |
+ [T T T]  [T T T]  [T T T]    &lt;--- 쓰레드 (SV_GroupThreadID)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>용어</th>
+<th>내용</th>
+<th>예)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kernel</td>
+<td>GPU에서 실행되는 컴퓨트 셰이더 함수(작업의 단위)</td>
+<td>#pragma kernel 함수이름</td>
+</tr>
+<tr>
+<td>Group</td>
+<td>쓰레드의 그룹. 동시 쓰레드 실행</td>
+<td>.Dispatch</td>
+</tr>
+<tr>
+<td>Thread</td>
+<td>Kernel이 실행될 때 생성되는 하나의 실행 단위</td>
+<td>[numthreads(8, 8, 1)]</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SV_GroupID</td>
+<td>.Dispatch(3, 2, 1)</td>
+</tr>
+<tr>
+<td>SV_GroupThreadID</td>
+<td>[numthreads(2, 2, 1)]</td>
+</tr>
+<tr>
+<td>SV_DispatchThreadID</td>
+<td>SV_GroupID * numthreads + SV_GroupThreadID</td>
+</tr>
+<tr>
+<td>SV_GroupIndex</td>
+<td>[0, (numthreadsX * numthreadsY * numThreadsZ) – 1]</td>
+</tr>
+</tbody>
+</table>
+<p><img src="../../res/dispatch_ids.jpg" alt="./res/dispatch_ids.jpg"></p>
+<pre><code class="lang-cs">/// ====================
+/// a.cs
+/// ====================
+ComputeShader _computeShader;
+int kernelIndex = _computeShader.FindKernel(&quot;Func_KernelIndex_0&quot;); // 0
+int threadGroupsX = 3;
+int threadGroupsY = 2;
+int threadGroupsZ = 1;
+_computeShader.Dispatch(kernelIndex, threadGroupsX, threadGroupsY, threadGroupsZ); // 쓰레드 그룹 6개(3x2x1)
+
+// 총 스레드 수
+// = 그룹 갯수          * 그룹당 쓰레드 갯수
+// = .Dispatch(x, y, z) * numthreads(x, y, z)
+// = 3x2x1 * 2x2x1 = 6*4 = 24
+
+/// ====================
+/// a.compute
+/// ====================
+#pragma kernel Func_KernelIndex_0
+#pragma kernel Func_KernelIndex_1
+ 
+[numthreads(2, 2, 1)]              // 그룹당 4쓰레드(2x2x1 )
+void Func_KernelIndex_0()
+</code></pre>
+<pre><code class="lang-cs">uint3 groupID    : SV_GroupID
+uint3 threadID   : SV_GroupThreadID
+uint3 dispatchID : SV_DispatchThreadID
+uint  groupIndex : SV_GroupIndex
+
+// SV_DispatchThreadID == SV_GroupID * numthreads + GroupThreadID
+// dispatchID          == groupID * uint3(2, 2, 1) + threadID;
+
+// SV_GroupIndex       ==   SV_GroupThreadID.z * numthreads.x * numthreads.y
+//                        + SV_GroupThreadID.y * numthreads.x
+//                        + SV_GroupThreadID.x
+// groupIndex          ==    threadID.z * 2 * 2
+//                         + threadID.y * 2
+//                         + threadID.x;
+</code></pre>
+<pre><code class="lang-cs">uint index = dispatchID.x + dispatchID.y * 6;
+
+_Buffer[index] = index;
+//  0  1  2  3  4  5
+//  6  7  8  9 10 11
+// 12 13 14 15 16 17
+// 18 19 20 21 22 23
+
+_Buffer[index] = groupID.x;   | _Buffer[index] = groupID.y;
+//  0  0  1  1  2  2          |  0  0  0  0  0  0
+//  0  0  1  1  2  2          |  0  0  0  0  0  0
+//  0  0  1  1  2  2          |  1  1  1  1  1  1
+//  0  0  1  1  2  2          |  1  1  1  1  1  1
+_Buffer[index] = threadID.x;  | _Buffer[index] = threadID.y;
+//  0  1  0  1  0  1          |  0  0  0  0  0  0
+//  0  1  0  1  0  1          |  1  1  1  1  1  1
+//  0  1  0  1  0  1          |  0  0  0  0  0  0
+//  0  1  0  1  0  1          |  1  1  1  1  1  1
+_Buffer[index] = dispatchID.x;| _Buffer[index] = dispatchID.y
+//  0  1  2  3  4  5          |  0  0  0  0  0  0
+//  0  1  2  3  4  5          |  1  1  1  1  1  1
+//  0  1  2  3  4  5          |  2  2  2  2  2  2
+//  0  1  2  3  4  5          |  3  3  3  3  3  3
+
+_Buffer[index] = groupIndex;
+//  0  1  0  1  0  1
+//  2  3  2  3  2  3
+//  0  1  0  1  0  1
+//  2  3  2  3  2  3
+</code></pre>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/netpyoung/nf.example.computeshader/blob/main/docfx/docs/basic/core_concept.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          <span>Made with <a href="https://dotnet.github.io/docfx">docfx</a></span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

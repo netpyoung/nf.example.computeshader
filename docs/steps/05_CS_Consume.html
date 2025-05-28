@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>05_CS_Consume | nf.example.computeshader </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="05_CS_Consume | nf.example.computeshader ">
+      
+      
+      <link rel="icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="../../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/netpyoung/nf.example.computeshader/blob/main/docfx/docs/steps/05_CS_Consume.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../logo.svg" alt="nf.example.computeshader">
+            nf.example.computeshader
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="05_cs_consume">05_CS_Consume</h1>
+
+<p><a href="https://web.archive.org/web/20160408181557/https://scrawkblog.com/2014/09/04/directcompute-tutorial-for-unity-consume-buffers/">https://web.archive.org/web/20160408181557/https://scrawkblog.com/2014/09/04/directcompute-tutorial-for-unity-consume-buffers/</a></p>
+<pre><code class="lang-cs" name="Default">#pragma kernel CS_Consume
+#pragma kernel CS_Append
+
+ConsumeStructuredBuffer&lt;float3&gt; _ConsumeBuffer;
+AppendStructuredBuffer&lt;float3&gt; _AppendBuffer;
+
+
+float _BetweenSize;
+float _Width;
+
+[numthreads(8, 8, 1)]
+void CS_Consume(uint3 id : SV_DispatchThreadID)
+{
+    _ConsumeBuffer.Consume();
+}
+
+[numthreads(8, 8, 1)]
+void CS_Append(uint3 id : SV_DispatchThreadID)
+{
+    float3 pos = id / (_Width - 1);
+    pos = (pos - 0.5) * 2.0 * _BetweenSize;
+    pos.z = 0.0;
+
+    if (id.x % 2 == 0 &amp;&amp; id.y % 2 == 0)
+    {
+        _AppendBuffer.Append(pos);
+    }
+}
+</code></pre><pre><code class="lang-cs" name="Default">using UnityEngine;
+using UnityEngine.Assertions;
+
+[DisallowMultipleComponent]
+public sealed class CS_Consume : MonoBehaviour
+{
+    private static readonly int NAME_ID_compute_ConsumeBuffer = Shader.PropertyToID(&quot;_ConsumeBuffer&quot;);
+    private static readonly int NAME_ID_compute_AppendBuffer = Shader.PropertyToID(&quot;_AppendBuffer&quot;);
+    private static readonly int NAME_ID_compute_BetweenSize = Shader.PropertyToID(&quot;_BetweenSize&quot;);
+    private static readonly int NAME_ID_compute_Width = Shader.PropertyToID(&quot;_Width&quot;);
+    private static readonly int NAME_ID_mat_Buffer = Shader.PropertyToID(&quot;_Buffer&quot;);
+    private static readonly int NAME_ID_mat_Color = Shader.PropertyToID(&quot;_Color&quot;);
+
+    [SerializeField]
+    private Material _material;
+
+    [SerializeField]
+    private ComputeShader _consumeShader;
+
+    private const int WIDTH = 32;
+    private const float BETWEEN_SIZE = 0.5f;
+
+    private GraphicsBuffer _appendBuffer;
+    private GraphicsBuffer _argBuffer;
+
+    private void Awake()
+    {
+        _appendBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Append, WIDTH * WIDTH, sizeof(float) * 3);
+        _appendBuffer.SetCounterValue(0);
+
+        int kernelConsumedIndex = _consumeShader.FindKernel(&quot;CS_Consume&quot;);
+        int kernelAppendIndex = _consumeShader.FindKernel(&quot;CS_Append&quot;);
+        _consumeShader.SetBuffer(kernelConsumedIndex, NAME_ID_compute_ConsumeBuffer, _appendBuffer);
+        _consumeShader.SetBuffer(kernelAppendIndex, NAME_ID_compute_AppendBuffer, _appendBuffer);
+        _consumeShader.SetFloat(NAME_ID_compute_BetweenSize, BETWEEN_SIZE);
+        _consumeShader.SetFloat(NAME_ID_compute_Width, WIDTH);
+
+        // Dispatch(4, 4, 1)
+        // [numthreads[8, 8, 1]
+        // 1024 x 1024 Size
+        // x, y짝수만 걸러내면 256개가 _appendBuffer에 누적된다.
+        _consumeShader.Dispatch(kernelAppendIndex, WIDTH / 8, WIDTH / 8, 1);
+
+        // Dispatch(1, 1, 1)
+        // [numthreads[8, 8, 1]
+        // 8 x 8 Size
+        // 64(8 * 8)개만큼 _consumeBuffer로 소모시킨다.
+        _consumeShader.Dispatch(kernelConsumedIndex, WIDTH / 8 / 4, WIDTH / 8 / 4, 1);
+
+        int[] args = new int[] { 0, 1, 0, 0 };
+        _argBuffer = new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments, 4, sizeof(int));
+        _argBuffer.SetData(args);
+
+        // _appendBuffer에 얼마나 들어있는지 _argBuffer[0]에 넣어주는 코드.
+        GraphicsBuffer.CopyCount(_appendBuffer, _argBuffer, 0);
+        _argBuffer.GetData(args);
+
+        Assert.AreEqual(256 - 64, args[0], &quot;Vertex Count&quot;);
+        Assert.AreEqual(1, args[1], &quot;Instance Count&quot;);
+        Assert.AreEqual(0, args[2], &quot;Start Vertex&quot;);
+        Assert.AreEqual(0, args[3], &quot;Start Instance&quot;);
+    }
+
+    private void OnRenderObject()
+    {
+        _material.SetPass(0);
+        _material.SetBuffer(NAME_ID_mat_Buffer, _appendBuffer);
+        _material.SetColor(NAME_ID_mat_Color, Color.yellow);
+
+        // _argBuffer : [정점의 개수, 인스턴스의 개수, 시작 정점과 시작 인스턴스]
+        Graphics.DrawProceduralIndirectNow(MeshTopology.Points, _argBuffer, 0);
+    }
+
+    private void OnDestroy()
+    {
+        _appendBuffer.Release();
+        _argBuffer.Release();
+    }
+}
+</code></pre>
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/netpyoung/nf.example.computeshader/blob/main/docfx/docs/steps/05_CS_Consume.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          <span>Made with <a href="https://dotnet.github.io/docfx">docfx</a></span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
