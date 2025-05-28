@@ -2,12 +2,15 @@ using UnityEngine;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(MeshRenderer))]
-public class CS_Image : MonoBehaviour
+public sealed class CS_Image : MonoBehaviour
 {
-    [SerializeField]
-    ComputeShader _shader;
+    private static readonly int NAME_ID_BASEMAP = Shader.PropertyToID("_BaseMap");
+    private static readonly int NAME_ID_RENDERTEX = Shader.PropertyToID("_RenderTex");
 
-    RenderTexture _RenderTex;
+    [SerializeField]
+    private ComputeShader _shader;
+
+    private RenderTexture _RenderTex;
 
     private void Awake()
     {
@@ -20,17 +23,18 @@ public class CS_Image : MonoBehaviour
         {
             enableRandomWrite = true
         };
+
         _RenderTex.Create();
 
-        MeshRenderer renderer = GetComponent<MeshRenderer>();
-        renderer.material.SetTexture("_BaseMap", _RenderTex);
-
+        MeshRenderer mr = GetComponent<MeshRenderer>();
+        mr.material.SetTexture(NAME_ID_BASEMAP, _RenderTex);
     }
-    void Start()
+
+    private void Start()
     {
         int kernelIndex = _shader.FindKernel("CS_Image");
 
-        _shader.SetTexture(kernelIndex, "_RenderTex", _RenderTex);
+        _shader.SetTexture(kernelIndex, NAME_ID_RENDERTEX, _RenderTex);
         _shader.Dispatch(kernelIndex, _RenderTex.width / 8, _RenderTex.height / 8, 1);
     }
 

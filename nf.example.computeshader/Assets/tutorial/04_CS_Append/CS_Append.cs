@@ -2,28 +2,34 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 [DisallowMultipleComponent]
-public class CS_Append : MonoBehaviour
+public sealed class CS_Append : MonoBehaviour
 {
-    [SerializeField]
-    Material _material;
+    private static readonly int NAME_ID_compute_AppendBuffer = Shader.PropertyToID("_AppendBuffer");
+    private static readonly int NAME_ID_compute_BetweenSize = Shader.PropertyToID("_BetweenSize");
+    private static readonly int NAME_ID_compute_Width = Shader.PropertyToID("_Width");
+    private static readonly int NAME_ID_mat_Buffer = Shader.PropertyToID("_Buffer");
+    private static readonly int NAME_ID_mat_Color = Shader.PropertyToID("_Color");
 
     [SerializeField]
-    ComputeShader _appendBufferShader;
+    private Material _material;
 
-    const int WIDTH = 32;
-    const float BETWEEN_SIZE = 0.5f;
+    [SerializeField]
+    private ComputeShader _appendBufferShader;
 
-    ComputeBuffer _appendBuffer;
-    ComputeBuffer _argBuffer;
+    private const int WIDTH = 32;
+    private const float BETWEEN_SIZE = 0.5f;
 
-    void Awake()
+    private GraphicsBuffer _appendBuffer;
+    private GraphicsBuffer _argBuffer;
+
+    private void Awake()
     {
-        _appendBuffer = new ComputeBuffer(WIDTH * WIDTH, sizeof(float) * 3, ComputeBufferType.Append);
+        _appendBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Append,  WIDTH * WIDTH, sizeof(float) * 3);
         _appendBuffer.SetCounterValue(0);
 
-        _appendBufferShader.SetBuffer(kernelIndex: 0, "_AppendBuffer", _appendBuffer);
-        _appendBufferShader.SetFloat("_BetweenSize", BETWEEN_SIZE);
-        _appendBufferShader.SetFloat("_Width", WIDTH);
+        _appendBufferShader.SetBuffer(kernelIndex: 0, NAME_ID_compute_AppendBuffer, _appendBuffer);
+        _appendBufferShader.SetFloat(NAME_ID_compute_BetweenSize, BETWEEN_SIZE);
+        _appendBufferShader.SetFloat(NAME_ID_compute_Width, WIDTH);
 
         // Dispatch(4, 4, 1)
         // [numthreads[8, 8, 1]
@@ -32,11 +38,11 @@ public class CS_Append : MonoBehaviour
         _appendBufferShader.Dispatch(0, WIDTH / 8, WIDTH / 8, 1);
 
         int[] args = new int[] { 0, 1, 0, 0 };
-        _argBuffer = new ComputeBuffer(4, sizeof(int), ComputeBufferType.IndirectArguments);
+        _argBuffer = new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments, 4, sizeof(int));
         _argBuffer.SetData(args);
 
         // _appendBuffer에 얼마나 들어있는지 _argBuffer[0]에 넣어주는 코드.
-        ComputeBuffer.CopyCount(_appendBuffer, _argBuffer, 0);
+        GraphicsBuffer.CopyCount(_appendBuffer, _argBuffer, 0);
         _argBuffer.GetData(args);
 
         Assert.AreEqual(256, args[0], "Vertex Count");
@@ -45,17 +51,17 @@ public class CS_Append : MonoBehaviour
         Assert.AreEqual(0, args[3], "Start Instance");
     }
 
-    void OnRenderObject()
+    private void OnRenderObject()
     {
         _material.SetPass(0);
-        _material.SetBuffer("_Buffer", _appendBuffer);
-        _material.SetColor("_Color", Color.red);
+        _material.SetBuffer(NAME_ID_mat_Buffer, _appendBuffer);
+        _material.SetColor(NAME_ID_mat_Color, Color.red);
 
         // _argBuffer : [정점의 개수, 인스턴스의 개수, 시작 정점과 시작 인스턴스]
         Graphics.DrawProceduralIndirectNow(MeshTopology.Points, _argBuffer, 0);
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         _appendBuffer.Release();
         _argBuffer.Release();
